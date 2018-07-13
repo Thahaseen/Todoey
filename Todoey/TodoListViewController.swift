@@ -12,53 +12,58 @@ class TodoListViewController: UITableViewController {
     
     
   var itemArray = [Item]()
-    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+//            print(dataFilePath)
     
 //    var  itemArray = ["heart rate","stroke volume","cardiac output","HRV","intensity","respiratory rate","total body water","oxgyen level"]
-   let defaults = UserDefaults.standard
+//   let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//       let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+       print(dataFilePath)
+//
         let newItem = Item()
         newItem.title = " Heart rate"
 //        newItem.done = true
         itemArray.append(newItem)
-        
+
         let newItem2 = Item()
         newItem2.title = " Heart rate variability"
 //        newItem2.done = true
         itemArray.append(newItem2)
-        
+
         let newItem3 = Item()
         newItem3.title = "cardiac output"
 //        newItem3.done = true
         itemArray.append(newItem3)
-        
+
         let newItem4 = Item()
         newItem4.title = "stroke volume"
 //        newItem4.done = true
         itemArray.append(newItem4)
-        
+
         let newItem5 = Item()
         newItem5.title = "respiratory rate"
 //        newItem5.done = true
         itemArray.append(newItem5)
-        
+
         let newItem6 = Item()
         newItem6.title = "total body water"
 //        newItem6.done = true
         itemArray.append(newItem6)
-        
+
         let newItem7 = Item()
         newItem7.title = "blood pressure"
 //        newItem7.done = true
         itemArray.append(newItem7)
-        
+
         let newItem8 = Item()
         newItem8.title = "ECG"
 //        newItem8.done = true
         itemArray.append(newItem8)
+        loadItems()
         
 //        itemArray.append(newItem8)
 //        itemArray.append(newItem7)
@@ -78,11 +83,7 @@ class TodoListViewController: UITableViewController {
 //        itemArray.append(newItem)
 //
         
-      if let  items = defaults.array(forKey: "TodoListArray") as? [Item]
-      { itemArray = items
-        }
-        
-        
+
         
         // Do any additional setup after loading the view, typically from a nib.
     }
@@ -130,6 +131,7 @@ return cell
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
+      saveItems()
         
 //      if  itemArray[indexPath.row].done == false
 //      {
@@ -148,7 +150,7 @@ return cell
 //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
 //        }
 //
-        tableView.reloadData()
+//        tableView.reloadData()
         
         
         
@@ -175,32 +177,71 @@ return cell
             
             self.itemArray.append(newItem)
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+       
+        
             
+//            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+//
+//            let encoder = PropertyListEncoder()
+//
+//            do {
+//                let data = try encoder.encode(self.itemArray)
+//
+//                try data.write(to: self.dataFilePath!)
+//
+//            }
+//            catch{
+//             print("error encoding item array,\(error)")
+//                 }
+            
+            self.saveItems()
+            }
             self.tableView.reloadData()
-        }
         
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "create new item"
             print(alertTextField.text)
             textField = alertTextField
-            
-            
-            print(alertTextField.text)
-            print("now")
         }
             
+//            print(alertTextField.text)
+//            print("now")
+//
         
         alert.addAction(action)
-        present(alert,animated: true,completion: nil)
+        self.present(alert, animated: true,completion: nil)
         
         
         
     }
-    
-    
-    
-    
+//mark - model manupulation methods
+        func saveItems()
+        {
+            let encoder = PropertyListEncoder()
+            
+                        do {
+                            let data = try encoder.encode(itemArray)
+            
+                            try data.write(to: dataFilePath!)
+            
+                        }
+                        catch{
+                         print("error encoding item array,\(error)")
+                             }
+            self.tableView.reloadData()
+        }
+    func loadItems() {
+        let data = try? Data(contentsOf: dataFilePath!)
+        
+        let decoder = PropertyListDecoder()
+        do{
+            itemArray = [try decoder.decode(Item.self, from: data!)]
+    }
+    catch
+    {
+    print("error decording item array,\(error)")
+    }
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
